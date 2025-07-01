@@ -3,367 +3,356 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kamal's TeraBox Player</title>
+  <title>Kamal's TeraBox Video Player</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root {
-      --primary-color: #2196f3; /* Kamal's blue */
-      --primary-dark: #1565c0;
-      --text-color: #222;
-      --bg-color: #f4f7fa;
-      --card-bg: #fff;
-      --border-radius: 10px;
+      --background-dark: #0a0f1c;
+      --background-medium: #1f3b73;
+      --background-light: #4b6cb7;
+      --primary-color: #4b9fff;
+      --accent-color: #86e0ff;
+      --text-color: #ffffff;
     }
 
-    body {
+    html, body {
       margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: var(--bg-color);
+      padding: 0;
+      height: 100%;
+      font-family: 'Roboto', Arial, sans-serif;
       color: var(--text-color);
+      background: linear-gradient(135deg, var(--background-dark), var(--background-medium), var(--background-light));
+      background-size: 400% 400%;
+      animation: cinematicGradient 20s ease infinite;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 20px;
+    }
+
+    @keyframes cinematicGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      25% {
+        background-position: 50% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      75% {
+        background-position: 50% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     header {
       text-align: center;
-      margin-bottom: 20px;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
     }
 
-    header h1 {
-      color: var(--primary-color);
-      font-size: 1.8rem;
-    }
-
-    #inputContainer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-      justify-content: center;
-      width: 100%;
-    }
-
-    #videoLink {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: var(--border-radius);
-      font-size: 1rem;
+    main {
       flex: 1;
-      min-width: 250px;
-      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
     }
 
-    #loadButton {
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: white;
+    input, button {
+      padding: 0.6rem 1rem;
+      margin: 0.5rem;
       border: none;
-      border-radius: var(--border-radius);
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    input {
+      width: min(90%, 400px);
+      max-width: 100%;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: #fff;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background-color 0.3s ease;
     }
 
-    #loadButton:hover {
-      background-color: var(--primary-dark);
-    }
-
-    #playerContainer {
-      width: 100%;
-      max-width: 800px;
-      background: var(--card-bg);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-radius: var(--border-radius);
-      overflow: hidden;
+    button:hover {
+      background-color: var(--accent-color);
     }
 
     #videoPlayer {
       width: 100%;
-      height: auto;
-      background: black;
+      max-width: 720px;
+      margin-top: 1rem;
+      background: #000;
+      border-radius: 8px;
       display: none;
     }
 
-    #status {
-      padding: 12px;
-      font-size: 0.95rem;
+    .status {
+      margin: 1rem;
       text-align: center;
-      background: #e3f2fd;
-      color: #0d47a1;
+      font-size: 1rem;
     }
 
-    .loading-animation {
-      display: none;
-      text-align: center;
-      margin: 10px;
-      font-weight: bold;
-      color: var(--primary-color);
+    .loader {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
     }
 
-    .loading-animation.show {
-      display: block;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    #qualityControls {
+    .quality-buttons {
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
-      margin: 15px auto;
-      gap: 10px;
+      justify-content: center;
+      margin-top: 1rem;
     }
 
     .quality-btn {
-      padding: 8px 16px;
-      border: 2px solid var(--primary-color);
-      background: white;
-      color: var(--primary-color);
-      font-weight: bold;
-      border-radius: var(--border-radius);
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--accent-color);
+      border-radius: 5px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background-color 0.3s ease;
     }
 
-    .quality-btn:hover {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .quality-btn.active {
-      background: var(--primary-color);
-      color: white;
+    .quality-btn.active, .quality-btn:hover {
+      background-color: var(--accent-color);
+      color: #000;
     }
 
     footer {
-      margin-top: 30px;
-      font-size: 0.9rem;
-      color: #777;
       text-align: center;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
     }
 
-    @media (max-width: 500px) {
-      #loadButton {
-        width: 100%;
-      }
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
 
-      #qualityControls {
-        flex-direction: column;
-        align-items: center;
-      }
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>TeraBox Video Player</h1>
+    TeraBox Video Player
   </header>
-
-  <div id="inputContainer">
-    <input id="videoLink" type="text" placeholder="Paste TeraBox link or ID" />
+  <main>
+    <input id="videoLink" type="text" placeholder="Enter TeraBox Share Link or ID" />
     <button id="loadButton">Load Video</button>
-  </div>
-
-  <div id="playerContainer">
+    <div class="quality-buttons">
+      <button class="quality-btn" data-quality="M3U8_AUTO_360">360p</button>
+      <button class="quality-btn" data-quality="M3U8_AUTO_480">480p</button>
+      <button class="quality-btn" data-quality="M3U8_AUTO_720">720p</button>
+      <button class="quality-btn" data-quality="M3U8_AUTO_1080">1080p</button>
+    </div>
+    <div class="status" id="status"></div>
     <video id="videoPlayer" controls></video>
-    <div id="status">Paste a link and click Load Video</div>
-  </div>
-
-  <div class="loading-animation">Loading...</div>
-
-  <div id="qualityControls">
-    <button class="quality-btn active" data-quality="M3U8_AUTO_720">720p</button>
-    <button class="quality-btn" data-quality="M3U8_AUTO_480">480p</button>
-    <button class="quality-btn" data-quality="M3U8_AUTO_360">360p</button>
-  </div>
-
+  </main>
   <footer>
-    © 2021–2025 <a target='_blank' href="https://kamal.fast-page.org">Kamal</a> | All Rights Reserved
+    © 2021–2025 <a href="https://kamal.fast-page.org" target="_blank">Kamal</a> | All Rights Reserved
   </footer>
 
-  <!-- Paste your full JavaScript logic below -->
-<script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
     let hls = null;
     let currentQuality = 'M3U8_AUTO_720';
     const API_BASE_URL = 'https://api.ronnieverse.site';
     const PROXY_WORKERS = [
-        'https://terabox-hls-proxy.mohdamir7505.workers.dev',
-        'https://terabox-hls-proxy-2.terbox-url-fixer.workers.dev',
-        'https://terabox-hls-proxy-3.eron8318.workers.dev',
-        'https://terabox-hls-proxy-4.ronnie6667770.workers.dev',
+      'https://terabox-hls-proxy.mohdamir7505.workers.dev',
+      'https://terabox-hls-proxy-2.terbox-url-fixer.workers.dev',
+      'https://terabox-hls-proxy-3.eron8318.workers.dev',
+      'https://terabox-hls-proxy-4.ronnie6667770.workers.dev',
     ];
     let requestCounter = Math.floor(Math.random() * PROXY_WORKERS.length);
 
     function updateStatus(message, isLoading = false) {
-        const statusEl = document.getElementById('status');
-        if (isLoading) {
-            statusEl.innerHTML = `<span class="loader"></span> ${message}`;
-            document.querySelector('.loading-animation').classList.add('show');
-        } else {
-            statusEl.textContent = message;
-            document.querySelector('.loading-animation').classList.remove('show');
-        }
+      const statusEl = document.getElementById('status');
+      if (isLoading) {
+        statusEl.innerHTML = `<span class="loader"></span> ${message}`;
+      } else {
+        statusEl.textContent = message;
+      }
     }
 
     function updateQualityButtons(activeQuality) {
-        document.querySelectorAll('.quality-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.quality === activeQuality) {
-                btn.classList.add('active');
-            }
-        });
+      document.querySelectorAll('.quality-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.quality === activeQuality) {
+          btn.classList.add('active');
+        }
+      });
     }
 
     function getNextProxyWorker() {
-        const workerIndex = requestCounter % PROXY_WORKERS.length;
-        requestCounter++;
-        return PROXY_WORKERS[workerIndex];
+      const workerIndex = requestCounter % PROXY_WORKERS.length;
+      requestCounter++;
+      return PROXY_WORKERS[workerIndex];
     }
 
     async function fetchM3U8FromAPI(shareUrl, quality) {
-        try {
-            updateStatus('Retrieving video stream...', true);
-            const qualityNum = quality.replace('M3U8_AUTO_', '');
-            const response = await fetch(`${API_BASE_URL}/get_m3u8?url=${encodeURIComponent(shareUrl)}&quality=${qualityNum}`);
-            if (!response.ok) {
-                try {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || 'Failed to retrieve M3U8 content');
-                } catch {
-                    throw new Error(`Failed to retrieve M3U8 content: ${response.status}`);
-                }
-            }
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/vnd.apple.mpegurl')) {
-                const m3u8Content = await response.text();
-                if (!m3u8Content.includes('#EXTM3U')) {
-                    throw new Error('Invalid M3U8 content received');
-                }
-                const blob = new Blob([m3u8Content], { type: 'application/vnd.apple.mpegurl' });
-                const blobUrl = URL.createObjectURL(blob);
-                window.currentBlobUrl = blobUrl;
-                return blobUrl;
-            } else {
-                const data = await response.json();
-                return data.m3u8_url;
-            }
-        } catch (error) {
-            console.error('Error fetching M3U8:', error);
-            updateStatus(`Error: ${error.message}`);
-            return null;
+      try {
+        updateStatus('Retrieving video stream...', true);
+        const qualityNum = quality.replace('M3U8_AUTO_', '');
+        const response = await fetch(`${API_BASE_URL}/get_m3u8?url=${encodeURIComponent(shareUrl)}&quality=${qualityNum}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.detail || `Failed: ${response.status}`);
         }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/vnd.apple.mpegurl')) {
+          const m3u8Content = await response.text();
+          if (!m3u8Content.includes('#EXTM3U')) throw new Error('Invalid M3U8 content');
+          const blob = new Blob([m3u8Content], { type: 'application/vnd.apple.mpegurl' });
+          const blobUrl = URL.createObjectURL(blob);
+          window.currentBlobUrl = blobUrl;
+          return blobUrl;
+        } else {
+          const data = await response.json();
+          return data.m3u8_url;
+        }
+      } catch (error) {
+        console.error('Error fetching M3U8:', error);
+        updateStatus(`Error: ${error.message}`);
+        return null;
+      }
     }
 
     async function fetchStreamFromStartParam(startUrl) {
-        try {
-            updateStatus('Fetching authenticated stream...', true);
-            if (!startUrl.startsWith('http')) {
-                startUrl = `https://www.1024tera.com/sharing/link?surl=${startUrl}`;
-            }
-            const targetUrl = `${API_BASE_URL}/get_m3u8_stream_fast/${encodeURIComponent(startUrl)}`;
-            const response = await fetch(targetUrl);
-            if (!response.ok) throw new Error(`Failed to get stream: ${response.status}`);
-            const m3u8Content = await response.text();
-            if (!m3u8Content.includes('#EXTM3U')) throw new Error('Invalid M3U8 content received');
-            const blob = new Blob([m3u8Content], { type: 'application/vnd.apple.mpegurl' });
-            const blobUrl = URL.createObjectURL(blob);
-            window.currentBlobUrl = blobUrl;
-            return blobUrl;
-        } catch (error) {
-            console.error('Error fetching authenticated stream:', error);
-            updateStatus(`Error: ${error.message}`);
-            return null;
+      try {
+        updateStatus('Fetching authenticated stream...', true);
+        if (!startUrl.startsWith('http')) {
+          startUrl = `https://www.1024tera.com/sharing/link?surl=${startUrl}`;
         }
+        const targetUrl = `${API_BASE_URL}/get_m3u8_stream_fast/${encodeURIComponent(startUrl)}`;
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error(`Failed: ${response.status}`);
+        const m3u8Content = await response.text();
+        if (!m3u8Content.includes('#EXTM3U')) throw new Error('Invalid M3U8 content');
+        const blob = new Blob([m3u8Content], { type: 'application/vnd.apple.mpegurl' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.currentBlobUrl = blobUrl;
+        return blobUrl;
+      } catch (error) {
+        console.error('Error fetching stream:', error);
+        updateStatus(`Error: ${error.message}`);
+        return null;
+      }
     }
 
     async function changeQuality(quality) {
-        const link = document.getElementById('videoLink').value.trim();
-        currentQuality = quality;
-        updateQualityButtons(quality);
-        cleanupBlobUrls();
+      const link = document.getElementById('videoLink').value.trim();
+      currentQuality = quality;
+      updateQualityButtons(quality);
+      cleanupBlobUrls();
 
-        if (link.startsWith('http')) {
-            const m3u8Url = await fetchM3U8FromAPI(link, quality);
-            if (m3u8Url) loadVideo(m3u8Url);
-            else updateStatus('Failed to get video stream from share URL');
-        } else if (link) {
-            if (quality !== 'M3U8_AUTO_360') {
-                updateStatus('Short ID only supports 360p');
-                currentQuality = 'M3U8_AUTO_360';
-                updateQualityButtons(currentQuality);
-            }
-            const blobUrl = await fetchStreamFromStartParam(link);
-            if (blobUrl) loadVideo(blobUrl);
-        } else {
-            updateStatus('Please enter a valid link or ID');
+      if (link.startsWith('http')) {
+        const m3u8Url = await fetchM3U8FromAPI(link, quality);
+        if (m3u8Url) loadVideo(m3u8Url);
+        else updateStatus('Failed to get video stream from share URL');
+      } else if (link) {
+        if (quality !== 'M3U8_AUTO_360') {
+          updateStatus('Short ID only supports 360p');
+          currentQuality = 'M3U8_AUTO_360';
+          updateQualityButtons(currentQuality);
         }
+        const blobUrl = await fetchStreamFromStartParam(link);
+        if (blobUrl) loadVideo(blobUrl);
+      } else {
+        updateStatus('Please enter a valid link or ID');
+      }
     }
 
     function cleanupBlobUrls() {
-        if (window.currentBlobUrl) {
-            URL.revokeObjectURL(window.currentBlobUrl);
-            window.currentBlobUrl = null;
-        }
+      if (window.currentBlobUrl) {
+        URL.revokeObjectURL(window.currentBlobUrl);
+        window.currentBlobUrl = null;
+      }
     }
 
     function loadVideo(streamUrl) {
-        const video = document.getElementById('videoPlayer');
-        video.style.display = 'block';  // <-- Show video when loading
-        const currentTime = video.currentTime;
-        const wasPlaying = !video.paused;
-        updateStatus('Loading video stream...', true);
-        if (Hls.isSupported()) {
-            if (hls) hls.destroy();
-            hls = new Hls({
-                xhrSetup: function(xhr, url) {
-                    if (url.includes('freeterabox.com') || url.includes('1024tera.com') || url.includes('terabox.com')) {
-                        xhr.open('GET', `${getNextProxyWorker()}/?url=${encodeURIComponent(url)}`, true);
-                    } else {
-                        xhr.open('GET', url, true);
-                    }
-                    xhr.withCredentials = false;
-                },
-                fragLoadingMaxRetry: 5,
-                fragLoadingRetryDelay: 1000,
-                manifestLoadingMaxRetry: 5,
-                manifestLoadingRetryDelay: 1000
-            });
-            hls.on(Hls.Events.ERROR, (event, data) => {
-                if (data.fatal) updateStatus(`Loading error: ${data.type}. Try another quality.`);
-            });
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                video.currentTime = currentTime;
-                updateStatus('Ready to play');
-                if (wasPlaying) video.play().catch(() => updateStatus('Click play to start'));
-            });
-            hls.loadSource(streamUrl);
-            hls.attachMedia(video);
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = streamUrl;
-            video.addEventListener('loadedmetadata', () => {
-                video.currentTime = currentTime;
-                updateStatus('Ready to play');
-                if (wasPlaying) video.play().catch(() => updateStatus('Click play to start'));
-            });
-        } else {
-            updateStatus('HLS not supported in this browser');
-        }
+      const video = document.getElementById('videoPlayer');
+      video.style.display = 'block';
+      const currentTime = video.currentTime;
+      const wasPlaying = !video.paused;
+      updateStatus('Loading video stream...', true);
+      if (Hls.isSupported()) {
+        if (hls) hls.destroy();
+        hls = new Hls({
+          xhrSetup: function(xhr, url) {
+            if (url.includes('freeterabox.com') || url.includes('1024tera.com') || url.includes('terabox.com')) {
+              xhr.open('GET', `${getNextProxyWorker()}/?url=${encodeURIComponent(url)}`, true);
+            } else {
+              xhr.open('GET', url, true);
+            }
+            xhr.withCredentials = false;
+          },
+          fragLoadingMaxRetry: 5,
+          fragLoadingRetryDelay: 1000,
+          manifestLoadingMaxRetry: 5,
+          manifestLoadingRetryDelay: 1000
+        });
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) updateStatus(`Loading error: ${data.type}. Try another quality.`);
+        });
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.currentTime = currentTime;
+          updateStatus('Ready to play');
+          if (wasPlaying) video.play().catch(() => updateStatus('Click play to start'));
+        });
+        hls.loadSource(streamUrl);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = streamUrl;
+        video.addEventListener('loadedmetadata', () => {
+          video.currentTime = currentTime;
+          updateStatus('Ready to play');
+          if (wasPlaying) video.play().catch(() => updateStatus('Click play to start'));
+        });
+      } else {
+        updateStatus('HLS not supported in this browser');
+      }
     }
 
     document.getElementById('loadButton').addEventListener('click', () => {
-        const link = document.getElementById('videoLink').value.trim();
-        if (!link) {
-            updateStatus('Please enter a link');
-            return;
-        }
-        document.body.classList.toggle('using-start-param', !link.startsWith('http'));
-        currentQuality = link.startsWith('http') ? 'M3U8_AUTO_720' : 'M3U8_AUTO_360';
-        updateQualityButtons(currentQuality);
-        changeQuality(currentQuality);
+      const link = document.getElementById('videoLink').value.trim();
+      if (!link) {
+        updateStatus('Please enter a link');
+        return;
+      }
+      document.body.classList.toggle('using-start-param', !link.startsWith('http'));
+      currentQuality = link.startsWith('http') ? 'M3U8_AUTO_720' : 'M3U8_AUTO_360';
+      updateQualityButtons(currentQuality);
+      changeQuality(currentQuality);
     });
 
     document.querySelectorAll('.quality-btn').forEach(btn => {
-        btn.addEventListener('click', () => changeQuality(btn.dataset.quality));
+      btn.addEventListener('click', () => changeQuality(btn.dataset.quality));
     });
   </script>
 </body>
