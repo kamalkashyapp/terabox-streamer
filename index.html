@@ -72,7 +72,8 @@
       overflow: hidden;
     }
 
-    video {
+    #videoPlayer {
+      display: none;
       width: 100%;
       height: auto;
       background-color: black;
@@ -292,6 +293,7 @@
 
     function loadVideo(streamUrl) {
         const video = document.getElementById('videoPlayer');
+        video.style.display = 'block';  // <-- Show video when loading
         const currentTime = video.currentTime;
         const wasPlaying = !video.paused;
         updateStatus('Loading video stream...', true);
